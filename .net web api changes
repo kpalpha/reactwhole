@@ -1,0 +1,70 @@
+[HttpPost("update")]
+public IActionResult UpdateUser([FromBody] User user)
+{
+    _connection.Open();
+    try
+    {
+        var query = "UPDATE Users SET FirstName = @FirstName, LastName = @LastName, MobileNumber = @MobileNumber, EnrolmentDate = @EnrolmentDate, NativePlace = @NativePlace, AreasOfInterest = @AreasOfInterest, Gender = @Gender WHERE UserId = @UserId";
+        using (var cmd = new MySqlCommand(query, _connection))
+        {
+            cmd.Parameters.AddWithValue("@FirstName", user.FirstName);
+            cmd.Parameters.AddWithValue("@LastName", user.LastName);
+            cmd.Parameters.AddWithValue("@MobileNumber", user.MobileNumber);
+            cmd.Parameters.AddWithValue("@EnrolmentDate", user.EnrolmentDate);
+            cmd.Parameters.AddWithValue("@NativePlace", user.NativePlace);
+            cmd.Parameters.AddWithValue("@AreasOfInterest", user.AreasOfInterest);
+            cmd.Parameters.AddWithValue("@Gender", user.Gender);
+            cmd.Parameters.AddWithValue("@UserId", user.UserId);
+
+            int rowsAffected = cmd.ExecuteNonQuery();
+            if (rowsAffected > 0)
+            {
+                return Ok(new { message = "User updated successfully!" });
+            }
+            else
+            {
+                return NotFound(new { message = "User not found." });
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { message = "An error occurred", error = ex.Message });
+    }
+    finally
+    {
+        _connection.Close();
+    }
+}
+
+[HttpPost("delete")]
+public IActionResult DeleteUser([FromBody] int userId)
+{
+    _connection.Open();
+    try
+    {
+        var query = "DELETE FROM Users WHERE UserId = @UserId";
+        using (var cmd = new MySqlCommand(query, _connection))
+        {
+            cmd.Parameters.AddWithValue("@UserId", userId);
+
+            int rowsAffected = cmd.ExecuteNonQuery();
+            if (rowsAffected > 0)
+            {
+                return Ok(new { message = "User deleted successfully!" });
+            }
+            else
+            {
+                return NotFound(new { message = "User not found." });
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new { message = "An error occurred", error = ex.Message });
+    }
+    finally
+    {
+        _connection.Close();
+    }
+}
